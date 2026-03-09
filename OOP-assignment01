@@ -1,0 +1,38 @@
+/*
+Q1 // المشكلتين : 
+   // الحقول (Fields) معرفة كـ public
+   // لا يوجد تحقق (Validation) عند السحب
+   // التصليح :
+  // جعل المتغيرات private , 
+  // عمل دوال getters لقراءه القيم ,
+  // عمل دوال للتحقق من المستخدم وللتحقق من الرصيد وللتحكم فى العمليات
+  // لماذا جعل الحقول public يعتبر ممارسة سيئة في OOP :
+  // بسبب كسر مبدأ encapsulation 
+  // فقدان التحكم فى البيانات وعدم وجود امان وصعوبه التعديل فى الكلاس لاحقا
+
+
+
+
+Q2 // الفرق :
+   field هو وصف للمتغير العادي حيث يخزن فيه البيانات مباشره
+  property هى خاصيه وطريقه امنه للوصول للبيانات باستخدام get , set وقد تحتوي على logic
+  public int balance {get; private set;}
+
+
+
+
+Q3 // this هى الkeyword المستخدمه للاشاره الى indexer member فى الكلاس 
+      الهدف منه هو عمل مجموعه من القيم فى مكان تخزين واحد حيث انهم يتشاركون نفس الخصائص
+   What happens if someone writes `register[10] = "Ali";` ? => ERROR 
+  How would you make the indexer safer? => by validate the incomming values to make sure it is in the rang , if else return null to handel errors
+  Can a class have more than one indexer? If yes, give an example of when that would be useful. => yes , when we want to reach the data in deferent ways like the index number or the name of the key
+
+
+
+
+Q4 // it means that the  `TotalOrders` is one of the kind in the class and it's saved in a spicific place on the class in the heap and it's connected th the class not to an object
+     the Item field is connected to an object and it can be in many copies and it stores diffrentlly
+     NO , bcoz the field has to be static member too to be abled to be accessed by a static method
+
+*/
+
