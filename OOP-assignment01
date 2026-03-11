@@ -36,3 +36,259 @@ Q4 // it means that the  `TotalOrders` is one of the kind in the class and it's 
 
 */
 
+
+
+
+using System.Diagnostics.Metrics;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Channels;
+public class Tickets
+{
+    private string movieName;
+    private string type;
+    private string seat;
+    private int price;
+    private static int count = 0;
+
+    public Tickets() { }
+
+    public Tickets(string moviename, string type = "Standard", string seat = "A1")
+    {
+        MovieName = moviename;
+        Type = type;
+        Seat = seat;
+
+        count++;
+
+        if (type.ToLower() == "vip")
+            price = 100;
+        else if (type.ToLower() == "imax")
+            price = 200;
+        else
+            price = 50;
+    }
+
+    public int TicketId
+    {
+        get 
+        {
+            count++;
+            return 1000 + count; 
+        }
+    }
+
+    public static int GetTotalTicketsSold()
+    {
+        return count;
+    }
+
+    public string MovieName
+    {
+        get { return movieName; }
+        set
+        {
+            if (!string.IsNullOrEmpty(value))
+                movieName = value;
+        }
+    }
+
+    public string Type
+    {
+        get { return type; }
+        set { type = value; }
+    }
+
+    public string Seat
+    {
+        get { return seat; }
+        set { seat = value; }
+    }
+
+    public int Price
+    {
+        get { return price; }
+    }
+
+    public double PriceAfterTax
+    {
+        get { return price * 1.14; }
+    }
+
+    public double ApplyDiscount(double discountAmount)
+    {
+        if (discountAmount > 0 && discountAmount < price)
+            return PriceAfterTax - discountAmount;
+
+        return PriceAfterTax;
+    }
+
+    public void PrintTicket()
+    {
+        Console.Write($"Ticket ID: {TicketId} | ");
+        Console.Write($"Movie: {MovieName} | ");
+        Console.Write($"Type: {Type} | ");
+        Console.Write($"Seat: {Seat} | ");
+        Console.Write($"Price: {Price} | ");
+        Console.WriteLine($"Price After Tax: { PriceAfterTax:F2}");
+    }
+}
+
+
+
+
+class Cinema
+{
+    private Tickets[] ticket = new Tickets[20];
+
+    // Indexer
+    public Tickets this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < ticket.Length)
+                return ticket[index];
+            return null;
+        }
+        set
+        {
+            if (index >= 0 && index < ticket.Length)
+                ticket[index] = value;
+        }
+    }
+
+    // Get Movie By Name
+    public Tickets GetMovieByName(string movieName)
+    {
+        for (int i = 0; i < ticket.Length; i++)
+        {
+            if (ticket[i] != null && ticket[i].MovieName == movieName)
+            {
+                return ticket[i];
+            }
+        }
+        return null;
+    }
+
+    // Add Ticket
+    public bool AddTicket(Tickets t)
+    {
+        for (int i = 0; i < ticket.Length; i++)
+        {
+            if (ticket[i] == null)
+            {
+                ticket[i] = t;
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+
+
+
+static class BookingHelper
+{
+    private static int _counter;
+    public static double CalcGroupDiscount(int numberOfTickets, double pricePerTicket)
+    {
+        double total = numberOfTickets * pricePerTicket;
+
+        if (numberOfTickets >= 5)
+        {
+            double discount = total * 0.10;
+            return total - discount;
+        }
+
+        return total;
+    }
+    public static string GenerateBookingReference()
+    {
+        _counter++;
+        return $"BK-{_counter}";
+    }
+}
+
+
+
+
+namespace ConsoleApp2
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Cinema cinema = new Cinema();
+
+            for (int i = 0; i < 3; i++)
+            {
+                Console.WriteLine($"\nEnter data for Ticket {i + 1}");
+
+                Console.Write("Movie Name: ");
+                string name = Console.ReadLine();
+
+                Console.Write("Ticket Type (Standard / VIP / IMAX): ");
+                string type = Console.ReadLine();
+
+                Console.Write("Seat Row: ");
+                string row = Console.ReadLine();
+
+                Console.Write("Seat Number: ");
+                string number = Console.ReadLine();
+
+                string seat = row + number;
+
+                Console.Write("Price: ");
+                int price = int.Parse(Console.ReadLine());
+
+                Tickets t = new Tickets(name, type, seat);
+
+                cinema.AddTicket(t);
+            }
+
+            Console.WriteLine("\n----- All Tickets -----");
+
+            for (int i = 0; i < 3; i++)
+            {
+                Tickets t = cinema[i];
+
+                if (t != null)
+                {
+                    Console.WriteLine($"\nTicket {i + 1}: ");
+                    t.PrintTicket();
+                }
+            }
+
+            Console.Write("\nEnter movie name to search: ");
+            string searchName = Console.ReadLine();
+
+            Tickets found = cinema.GetMovieByName(searchName);
+
+            if (found != null)
+            {
+                Console.WriteLine("\nMovie Found:");
+                found.PrintTicket();
+            }
+            else
+            {
+                Console.WriteLine("Movie not found.");
+            }
+
+            Console.WriteLine($"\nTotal Tickets Sold: {Tickets.GetTotalTicketsSold()}"); 
+            Console.WriteLine("\nBooking References:");
+            Console.WriteLine(BookingHelper.GenerateBookingReference());
+            Console.WriteLine(BookingHelper.GenerateBookingReference());
+
+            // discount
+            int ticketPrice = 80;
+            int groupSize = 5;
+
+            Console.WriteLine("\nGroup Discount Calculation:");
+            Console.WriteLine($"Total before discount: {BookingHelper.CalcGroupDiscount(ticketPrice,3)}");
+            Console.WriteLine($"Total after discount: {BookingHelper.CalcGroupDiscount(ticketPrice,groupSize)}");
+        }
+    }
+}
+
